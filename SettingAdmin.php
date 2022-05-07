@@ -16,152 +16,30 @@ class SettingAdmin extends Model
   public function calculatePrice($place, $checkin, $checkout, $numOfadults)
   {
 
+	  
+	$monthCode = date("m", strtotime($checkout));
+    $monthCode2 = date("m", strtotime($checkin));
 
     $numofDaysoct6 = $this->datediffcount($checkin, $checkout);
 
     $set_admin = SettingAdmin::orderBy('id')->first();
 
     if ($set_admin->day == '3') {
-      if ($numofDaysoct6 <= 20) {
+      if ($numofDaysoct6 <= 19) {
+		  if($monthCode == "08" && $monthCode2 == "08"){
+			return $this->monthlyCalc($place, $checkin, $checkout, $numOfadults);
+		  }
         $numOfdays = date_diff(date_create($checkin), date_create($checkout));
         $numOfdays->d = $numOfdays->d + 1;
         $numOfdays->d = $this->daily_fee * $numOfdays->d;
-        return $this->calc_montly_prices($place, $checkin, $checkout, $numOfadults) +  $numOfdays->d;
-      } else {
-        return $this->calc_montly_prices($place, $checkin, $checkout, $numOfadults);
+        return $this->monthlyCalc($place, $checkin, $checkout, $numOfadults) +  $numOfdays->d;
+      } 
+		
+		else {
+        return $this->monthlyCalc($place, $checkin, $checkout, $numOfadults);
       }
     }
-    return $this->calc_montly_prices($place, $checkin, $checkout, $numOfadults);
-  }
-
-
-
-  public function calc_montly_prices($place, $checkin, $checkout, $numOfadults){
-
-    // Checking if checkin is june july, or sepeteber
-
-
-    $checkin1 = strtotime($checkin);
-    $checkout2 = strtotime($checkout);
-
-
-        // Checking what month is selected
-        $checkin_month = date("m", strtotime($checkin));
-        $checkout_month = date("m", strtotime($checkout));
-
-
-
-
-    
-    
-        if($checkin_month == "06"){
-          $num_days = 30;
-        }elseif($checkin_month == "07"){
-          $num_days = 31;
-        }elseif($checkin_month == "08"){
-          $num_days = 31;
-        }elseif($checkin_month == "08"){
-            $num_days = 30;
-        }
-
-
-        $checkin_days_remaining = (int)date('t', $checkin1) - (int)date('j', $checkin1);
-        $checkout_days_remaining = (int)date('t', $checkout2) - (int)date('j', $checkout2);
-        
-    
-    
-        // Checking difference in number of days
-    
-        $checkin_num_diff = strtotime($checkin);
-        $checkout_num_diff = strtotime($checkout);
-        $daysRemaining = (int)date('t', $checkin_num_diff) - (int)date('j', $checkin_num_diff);
-        $daysRemainingC = (int)date('t', $checkout_num_diff) - (int)date('j', $checkout_num_diff);
-    
-    
-        echo ($checkin_month && $checkout_month != "08");
-
-
-
-        // Caluclates Months for June, July and September!!!
-
-        if($checkin_month && $checkout_month != "08"){
-          echo "here";
-          $diff = $daysRemaining -  $daysRemainingC + 1;
-          $daysRemaining += 1;
-          $daysRemainingC = 30 - $daysRemainingC;
-          if ($numOfadults == 1) {
-            $calculation = ($place->price1 / $num_days) * $diff;
-            $price_tm = $calculation;
-          } elseif ($numOfadults == 2) {
-            $calculation = ($place->price2 / $num_days) * $diff;
-            $price_tm = $calculation;
-          } elseif ($numOfadults == 3) {
-            $calculation = ($place->price3 / $num_days) * $diff;
-            $price_tm = $calculation;
-          } elseif ($numOfadults == 4) {
-            $calculation = ($place->price4 / $num_days) * $diff;
-            $price_tm = $calculation;
-          }
-          return round($price_tm);
-
-        }
-
-        // Calculates if End Month is August Only
-
-        if($checkin_month !== "08" && $checkout_month == "08"){
-          echo "ay time";
-          $checkin_days_remaining += 1;
-          if ($numOfadults == 1) {
-            $calculation = ($place->price1 / $num_days) * $checkin_days_remaining;
-            // echo($calculation);
-            $august_calcualtion = $place->price1;
-            echo $calculation;
-            $price_tm = $august_calcualtion + $calculation;
-          } elseif ($numOfadults == 2) {
-            $calculation = ($place->price2 / $num_days) * $checkin_days_remaining;
-            $august_calcualtion = $place->price2;
-            $price_tm = $august_calcualtion + $calculation;
-          } elseif ($numOfadults == 3) {
-            $calculation = ($place->price3 / $num_days) * $checkin_days_remaining;
-            $august_calcualtion = $place->price3;
-            $price_tm = $august_calcualtion + $calculation;
-          } elseif ($numOfadults == 4) {
-            $calculation = ($place->price4 / $num_days) * $checkin_days_remaining;
-            $august_calcualtion = $place->price4;
-            $price_tm = $august_calcualtion + $calculation;
-          }
-
-          return round($price_tm);
-
-        }
-
-        if($checkin_month && $checkout_month == "08"){
-
-          echo "agust time";
-
-          if ($numOfadults == 1) {
-            $august_calcualtion = $place->price1;
-            $price_tm = $august_calcualtion;
-          } elseif ($numOfadults == 2) {
-            $august_calcualtion = $place->price1;
-            $price_tm = $august_calcualtion;
-          } elseif ($numOfadults == 3) {
-            $august_calcualtion = $place->price1;
-            $price_tm = $august_calcualtion;
-          } elseif ($numOfadults == 4) {
-            $august_calcualtion = $place->price1;
-            $price_tm = $august_calcualtion;
-          }
-  
-          return round($price_tm);
-
-        }
-    
-    
-
-
-
-
+    return $this->monthlyCalc($place, $checkin, $checkout, $numOfadults);
   }
 
 
@@ -347,16 +225,16 @@ class SettingAdmin extends Model
         $daysRemaining += 1;
         $daysRemainingC = 31 - $daysRemainingC;
         if ($numOfadults == 1) {
-          $july_calc = ($place->price1 / $numOfDaysInMonth) * $diff;
+          $july_calc = ($place->price1 / 30) * $diff;
           $price_tm = $july_calc;
         } elseif ($numOfadults == 2) {
-          $july_calc = ($place->price2 / $numOfDaysInMonth) * $diff;
+          $july_calc = ($place->price2 / 30) * $diff;
           $price_tm = $july_calc;
         } elseif ($numOfadults == 3) {
-          $july_calc = ($place->price3 / $numOfDaysInMonth) * $diff;
+          $july_calc = ($place->price3 / 30) * $diff;
           $price_tm = $july_calc;
         } elseif ($numOfadults == 4) {
-          $july_calc = ($place->price4 / $numOfDaysInMonth) * $diff;
+          $july_calc = ($place->price4 / 30) * $diff;
           $price_tm = $july_calc;
         }
         return round($price_tm);
@@ -366,19 +244,19 @@ class SettingAdmin extends Model
 
         $daysRemaining += 1;
         if ($numOfadults == 1) {
-          $july_calculation = ($place->price1 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price1 / 30) * $daysRemaining;
           $august_calcualtion = $place->price1;
           $price_tm = $july_calculation + $august_calcualtion;
         } elseif ($numOfadults == 2) {
-          $july_calculation = ($place->price2 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price2 / 30) * $daysRemaining;
           $august_calcualtion = $place->price2;
           $price_tm = $july_calculation + $august_calcualtion;
         } elseif ($numOfadults == 3) {
-          $july_calculation = ($place->price3 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price3 / 30) * $daysRemaining;
           $august_calcualtion = $place->price3;
           $price_tm = $july_calculation + $august_calcualtion;
         } elseif ($numOfadults == 4) {
-          $july_calculation = ($place->price4 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price4 / 30) * $daysRemaining;
           $august_calcualtion = $place->price4;
           $price_tm = $july_calculation + $august_calcualtion;
         }
@@ -392,22 +270,22 @@ class SettingAdmin extends Model
         $daysRemaining += 1;
         $daysRemainingC = 30 - $daysRemainingC;
         if ($numOfadults == 1) {
-          $july_calculation = ($place->price1 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price1 / 30) * $daysRemaining;
           $august_calcualtion = $place->price1;
           $september_calculation = ($place->price1 / 30) * $daysRemainingC;
           $price_tm = $july_calculation + $august_calcualtion +  $september_calculation;
         } elseif ($numOfadults == 2) {
-          $july_calculation = ($place->price2 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price2 / 30) * $daysRemaining;
           $august_calcualtion = $place->price2;
           $september_calculation = ($place->price2 / 30) * $daysRemainingC;
           $price_tm = $july_calculation + $august_calcualtion +  $september_calculation;
         } elseif ($numOfadults == 3) {
-          $july_calculation = ($place->price3 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price3 / 30) * $daysRemaining;
           $august_calcualtion = $place->price3;
           $september_calculation = ($place->price3 / 30) * $daysRemainingC;
           $price_tm = $july_calculation + $august_calcualtion +  $september_calculation;
         } elseif ($numOfadults == 4) {
-          $july_calculation = ($place->price4 / $numOfDaysInMonth) * $daysRemaining;
+          $july_calculation = ($place->price4 / 30) * $daysRemaining;
           $august_calcualtion = $place->price4;
           $september_calculation = ($place->price4 / 30) * $daysRemainingC;
           $price_tm = $july_calculation + $august_calcualtion +  $september_calculation;
@@ -422,13 +300,13 @@ class SettingAdmin extends Model
           $august_calcualtion = $place->price1;
           $price_tm = $august_calcualtion;
         } elseif ($numOfadults == 2) {
-          $august_calcualtion = $place->price1;
+          $august_calcualtion = $place->price2;
           $price_tm = $august_calcualtion;
         } elseif ($numOfadults == 3) {
-          $august_calcualtion = $place->price1;
+          $august_calcualtion = $place->price3;
           $price_tm = $august_calcualtion;
         } elseif ($numOfadults == 4) {
-          $august_calcualtion = $place->price1;
+          $august_calcualtion = $place->price4;
           $price_tm = $august_calcualtion;
         }
 
